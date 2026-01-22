@@ -20,8 +20,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+            <Route path="/auth-debug" element={<AuthDebug />} />
+            <Route path="
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
