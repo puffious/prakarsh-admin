@@ -1,22 +1,12 @@
-# Welcome to your Lovable project
+# Prakarsh Admin Panel
 
-## Project info
+Event Management Admin Panel for Prakarsh festival.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+## Getting Started
 
-## How can I edit this code?
+### Local Development
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+You can work locally using your preferred IDE and push changes to the repository.
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -91,14 +81,11 @@ docker compose up -d
 
 The site will be available at http://localhost:4173.
 
-## How can I deploy this project?
+## Supabase Configuration
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+To use a custom domain like `admin.prakarsh.org`, update these settings in your Supabase dashboard:
 
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- Go to **Authentication → URL Configuration**
+- Set **Site URL** to `https://admin.prakarsh.org`
+- Add **Redirect URLs** (including localhost for testing)
+- Configure **CORS allowed origins** in Settings → API
