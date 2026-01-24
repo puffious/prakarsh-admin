@@ -1,0 +1,100 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Event Hub API",
+    "version": "1.0.0",
+    "description": "Public endpoints served via Vercel API routes backed by Supabase."
+  },
+  "servers": [
+    { "url": "/api", "description": "Same origin" }
+  ],
+  "paths": {
+    "/events": {
+      "get": {
+        "summary": "List all events",
+        "operationId": "listEvents",
+        "responses": {
+          "200": {
+            "description": "Array of events",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Event" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    },
+    "/events/{category}": {
+      "get": {
+        "summary": "List events filtered by category",
+        "operationId": "listEventsByCategory",
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Category value stored in the events table"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of events in the given category",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Event" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/ServerError" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer" },
+          "name": { "type": "string" },
+          "tagline": { "type": "string", "nullable": true },
+          "description": { "type": "string", "nullable": true },
+          "organizer": { "type": "string", "nullable": true },
+          "date": { "type": "string", "format": "date" },
+          "time": { "type": "string" },
+          "category": { "type": "string", "nullable": true },
+          "misc": { "type": "string", "nullable": true },
+          "location": { "type": "string", "nullable": true },
+          "created_at": { "type": "string", "format": "date-time", "nullable": true },
+          "updated_at": { "type": "string", "format": "date-time", "nullable": true }
+        },
+        "required": ["id", "name", "date", "time"]
+      }
+    },
+    "responses": {
+      "ServerError": {
+        "description": "Unexpected error from Supabase or API handler",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": { "type": "string" },
+                "details": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
