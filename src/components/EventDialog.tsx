@@ -30,6 +30,8 @@ const emptyFormData: EventFormData = {
   category: null,
   misc: null,
   location: null,
+  rules: null,
+  highlights: null,
 };
 
 export function EventDialog({
@@ -55,6 +57,8 @@ export function EventDialog({
         category: event.category,
         misc: event.misc,
         location: event.location,
+        rules: event.rules,
+        highlights: event.highlights,
       });
     } else {
       setFormData(emptyFormData);
@@ -166,6 +170,26 @@ export function EventDialog({
               />
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="highlights">Highlights</Label>
+              <Textarea
+                id="highlights"
+                value={formData.highlights || ''}
+                onChange={(e) => setFormData({ ...formData, highlights: e.target.value || null })}
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="rules">Rules</Label>
+              <Textarea
+                id="rules"
+                value={formData.rules || ''}
+                onChange={(e) => setFormData({ ...formData, rules: e.target.value || null })}
+                rows={3}
+              />
+            </div>
+
             <div className="flex justify-between pt-4">
               {isEditing && onDelete && (
                 <Button type="button" variant="destructive" onClick={onDelete}>
@@ -232,6 +256,18 @@ export function EventDialog({
                   <div>
                     <p className="text-sm text-muted-foreground">Misc</p>
                     <p>{event.misc}</p>
+                  </div>
+                )}
+                {event.highlights && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Highlights</p>
+                    <p className="whitespace-pre-wrap">{event.highlights}</p>
+                  </div>
+                )}
+                {event.rules && (
+                  <div>
+                    <p className="text-sm text-muted-foreground">Rules</p>
+                    <p className="whitespace-pre-wrap">{event.rules}</p>
                   </div>
                 )}
               </>

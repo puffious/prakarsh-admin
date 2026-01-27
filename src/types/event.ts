@@ -9,6 +9,8 @@ export interface Event {
   category: string | null;
   misc: string | null;
   location: string | null;
+  rules: string | null;
+  highlights: string | null;
   created_at?: string;
   updated_at?: string;
 }
