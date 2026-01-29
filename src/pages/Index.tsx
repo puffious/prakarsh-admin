@@ -7,8 +7,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { EventCard } from '@/components/EventCard';
 import { EventDialog } from '@/components/EventDialog';
 import { Button } from '@/components/ui/button';
-import { Plus, LogIn, LogOut } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Plus, LogIn, LogOut, Search } from 'lucide-react';
 import { toast } from 'sonner';
+
+const CATEGORIES = ['all', 'tech', 'non-tech', 'esports', 'workshops'] as const;
 
 export default function Index() {
   const { user, signOut } = useAuth();
@@ -16,6 +19,8 @@ export default function Index() {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
@@ -100,12 +105,42 @@ export default function Index() {
     toast.success('Logged out');
   };
 
+  // Filter events based on search query and selected category
+  const filteredEvents = events.filter((event) => {
+    const matchesSearch = searchQuery === '' || 
+      event.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.tagline?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.organizer?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesCategory = selectedCategory === 'all' || 
+      event.category?.toLowerCase() === selectedCategory.toLowerCase();
+    
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b bg-card">
-        <div className="container flex items-center justify-between h-14 px-4">
-          <h1 className="font-semibold">Events</h1>
-          <div className="flex items-center gap-2">
+        <div className="container flex items-center justify-between h-14 px-4 gap-4">
+          <h1 className="font-semibold shrink-0">Events</h1>
+          
+          {/* Search Bar in Navbar */}
+          <div className="relative flex-1 max-w-2xl">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 pr-16 text-center"
+            />
+            <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-sm text-muted-foreground">
+              {filteredEvents.length}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
             {user ? (
               <>
                 <Button size="sm" onClick={handleAddClick}>
@@ -130,24 +165,44 @@ export default function Index() {
       </header>
 
       <main className="container px-4 py-6">
+        {/* Category Buttons */}
+        <div className="flex justify-center gap-2 flex-wrap mb-6">
+          {CATEGORIES.map((category) => (
+            <Button
+              key={category}
+              variant={selectedCategory === category ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedCategory(category)}
+            >
+              {category}
+            </Button>
+          ))}
+        </div>
+
         {isLoading ? (
           <div className="text-center text-muted-foreground py-12">
             Loading events...
           </div>
-        ) : events.length === 0 ? (
+        ) : filteredEvents.length === 0 ? (
           <div className="text-center text-muted-foreground py-12">
-            No events found.
-            {user && (
-              <p className="mt-2">
-                <Button variant="link" onClick={handleAddClick}>
-                  Add your first event
-                </Button>
-              </p>
+            {events.length === 0 ? (
+              <>
+                No events found.
+                {user && (
+                  <p className="mt-2">
+                    <Button variant="link" onClick={handleAddClick}>
+                      Add your first event
+                    </Button>
+                  </p>
+                )}
+              </>
+            ) : (
+              'No events match your search criteria.'
             )}
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {events.map((event) => (
+            {filteredEvents.map((event) => (
               <EventCard
                 key={event.id}
                 event={event}
