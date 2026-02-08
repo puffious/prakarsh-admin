@@ -25,6 +25,7 @@ export type Database = {
           misc: string | null
           name: string
           organizer: string | null
+          solo: boolean | null
           tagline: string | null
           time: string
           updated_at: string | null
@@ -39,6 +40,7 @@ export type Database = {
           misc?: string | null
           name: string
           organizer?: string | null
+          solo?: boolean | null
           tagline?: string | null
           time: string
           updated_at?: string | null
@@ -53,6 +55,7 @@ export type Database = {
           misc?: string | null
           name?: string
           organizer?: string | null
+          solo?: boolean | null
           tagline?: string | null
           time?: string
           updated_at?: string | null

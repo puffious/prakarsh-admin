@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface EventDialogProps {
   open: boolean;
@@ -32,6 +33,7 @@ const emptyFormData: EventFormData = {
   location: null,
   rules: null,
   highlights: null,
+  solo: null,
 };
 
 export function EventDialog({
@@ -59,6 +61,7 @@ export function EventDialog({
         location: event.location,
         rules: event.rules,
         highlights: event.highlights,
+        solo: event.solo,
       });
     } else {
       setFormData(emptyFormData);
@@ -160,6 +163,17 @@ export function EventDialog({
               />
             </div>
 
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="solo"
+                checked={formData.solo || false}
+                onCheckedChange={(checked) => setFormData({ ...formData, solo: checked as boolean })}
+              />
+              <Label htmlFor="solo" className="cursor-pointer">
+                Solo Event
+              </Label>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="misc">Misc</Label>
               <Textarea
@@ -252,6 +266,10 @@ export function EventDialog({
                     <p>{event.category}</p>
                   </div>
                 )}
+                <div>
+                  <p className="text-sm text-muted-foreground">Solo Event</p>
+                  <p>{event.solo ? 'Yes' : 'No'}</p>
+                </div>
                 {event.misc && (
                   <div>
                     <p className="text-sm text-muted-foreground">Misc</p>

@@ -1,7 +1,7 @@
 import { Event } from '@/types/event';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, MapPin, User } from 'lucide-react';
+import { Calendar, Clock, MapPin, User, UserCheck } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface EventCardProps {
@@ -18,11 +18,19 @@ export function EventCard({ event, onClick }: EventCardProps) {
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <CardTitle className="text-lg leading-tight">{event.name}</CardTitle>
-          {event.category && (
-            <Badge variant="secondary" className="shrink-0">
-              {event.category}
-            </Badge>
-          )}
+          <div className="flex gap-2 shrink-0">
+            {event.solo && (
+              <Badge variant="outline" className="shrink-0">
+                <UserCheck className="h-3 w-3 mr-1" />
+                Solo
+              </Badge>
+            )}
+            {event.category && (
+              <Badge variant="secondary" className="shrink-0">
+                {event.category}
+              </Badge>
+            )}
+          </div>
         </div>
         {event.tagline && (
           <p className="text-sm text-muted-foreground">{event.tagline}</p>

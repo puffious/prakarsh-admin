@@ -11,6 +11,7 @@ export interface Event {
   location: string | null;
   rules: string | null;
   highlights: string | null;
+  solo: boolean | null;
   created_at?: string;
   updated_at?: string;
 }
