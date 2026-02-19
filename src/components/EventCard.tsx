@@ -1,11 +1,10 @@
-import { Event } from '@/types/event';
+import { EventWithDays } from '@/types/event';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, Clock, MapPin, User, UserCheck } from 'lucide-react';
-import { format } from 'date-fns';
+import { Calendar, Clock, MapPin, User, UserCheck, Trophy } from 'lucide-react';
 
 interface EventCardProps {
-  event: Event;
+  event: EventWithDays;
   onClick?: () => void;
 }
 
@@ -37,22 +36,65 @@ export function EventCard({ event, onClick }: EventCardProps) {
         )}
       </CardHeader>
       <CardContent className="space-y-2">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Calendar className="h-4 w-4" />
-          <span>{format(new Date(event.date), 'MMM d, yyyy')}</span>
-          <Clock className="h-4 w-4 ml-2" />
-          <span>{event.time}</span>
-        </div>
-        {event.location && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4" />
-            <span>{event.location}</span>
+        {/* Day 1 Info */}
+        {event.day1 && (
+          <div className="space-y-1">
+            <p className="text-xs font-semibold text-muted-foreground">Day 1</p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span>{new Date(event.day1.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+              {event.day1.start_time && (
+                <>
+                  <Clock className="h-4 w-4 ml-2" />
+                  <span>{event.day1.start_time}</span>
+                </>
+              )}
+            </div>
+            {event.day1.location && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4" />
+                <span>{event.day1.location}</span>
+              </div>
+            )}
           </div>
         )}
+
+        {/* Day 2 Info */}
+        {event.day2 && (
+          <div className="space-y-1">
+            <p className="text-xs font-semibold text-muted-foreground">Day 2</p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Calendar className="h-4 w-4" />
+              <span>{new Date(event.day2.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
+              {event.day2.start_time && (
+                <>
+                  <Clock className="h-4 w-4 ml-2" />
+                  <span>{event.day2.start_time}</span>
+                </>
+              )}
+            </div>
+            {event.day2.location && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4" />
+                <span>{event.day2.location}</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Show organizer if available */}
         {event.organizer && (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <User className="h-4 w-4" />
             <span>{event.organizer}</span>
+          </div>
+        )}
+
+        {/* Show prize pool if available */}
+        {event.prize_pool > 0 && (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Trophy className="h-4 w-4" />
+            <span>₹{event.prize_pool.toLocaleString()}</span>
           </div>
         )}
       </CardContent>

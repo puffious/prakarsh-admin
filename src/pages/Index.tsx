@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Event, EventFormData } from '@/types/event';
+import { EventWithDays, EventFormData, Day1FormData, Day2FormData } from '@/types/event';
 import { useAuth } from '@/hooks/useAuth';
 import { EventCard } from '@/components/EventCard';
 import { EventDialog } from '@/components/EventDialog';
@@ -16,7 +16,7 @@ const CATEGORIES = ['all', 'tech', 'non-tech', 'esports', 'workshops'] as const;
 export default function Index() {
   const { user, signOut } = useAuth();
   const queryClient = useQueryClient();
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<EventWithDays | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,13 +25,36 @@ export default function Index() {
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['events'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Fetch events
+      const { data: eventsData, error: eventsError } = await supabase
         .from('events')
         .select('*')
-        .order('date', { ascending: true });
+        .order('id', { ascending: true });
 
-      if (error) throw error;
-      return data as Event[];
+      if (eventsError) throw eventsError;
+
+      // Fetch day1 data
+      const { data: day1Data, error: day1Error } = await supabase
+        .from('day1')
+        .select('*');
+
+      if (day1Error) throw day1Error;
+
+      // Fetch day2 data
+      const { data: day2Data, error: day2Error } = await supabase
+        .from('day2')
+        .select('*');
+
+      if (day2Error) throw day2Error;
+
+      // Combine data
+      const eventsWithDays: EventWithDays[] = eventsData.map((event) => ({
+        ...event,
+        day1: day1Data.find((d) => d.event_id === event.id) || null,
+        day2: day2Data.find((d) => d.event_id === event.id) || null,
+      }));
+
+      return eventsWithDays;
     },
   });
 
@@ -74,7 +97,81 @@ export default function Index() {
     onError: () => toast.error('Failed to delete event'),
   });
 
-  const handleEventClick = (event: Event) => {
+  // Day 1 mutations
+  const createDay1Mutation = useMutation({
+    mutationFn: async ({ eventId, data }: { eventId: number; data: Day1FormData }) => {
+      const { error } = await supabase.from('day1').insert([{ ...data, event_id: eventId }]);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      toast.success('Day 1 details created');
+    },
+    onError: () => toast.error('Failed to create Day 1 details'),
+  });
+
+  const updateDay1Mutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Day1FormData }) => {
+      const { error } = await supabase.from('day1').update(data).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      toast.success('Day 1 details updated');
+    },
+    onError: () => toast.error('Failed to update Day 1 details'),
+  });
+
+  const deleteDay1Mutation = useMutation({
+    mutationFn: async (id: number) => {
+      const { error } = await supabase.from('day1').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      toast.success('Day 1 details deleted');
+    },
+    onError: () => toast.error('Failed to delete Day 1 details'),
+  });
+
+  // Day 2 mutations
+  const createDay2Mutation = useMutation({
+    mutationFn: async ({ eventId, data }: { eventId: number; data: Day2FormData }) => {
+      const { error } = await supabase.from('day2').insert([{ ...data, event_id: eventId }]);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      toast.success('Day 2 details created');
+    },
+    onError: () => toast.error('Failed to create Day 2 details'),
+  });
+
+  const updateDay2Mutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Day2FormData }) => {
+      const { error } = await supabase.from('day2').update(data).eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      toast.success('Day 2 details updated');
+    },
+    onError: () => toast.error('Failed to update Day 2 details'),
+  });
+
+  const deleteDay2Mutation = useMutation({
+    mutationFn: async (id: number) => {
+      const { error } = await supabase.from('day2').delete().eq('id', id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['events'] });
+      toast.success('Day 2 details deleted');
+    },
+    onError: () => toast.error('Failed to delete Day 2 details'),
+  });
+
+  const handleEventClick = (event: EventWithDays) => {
     setSelectedEvent(event);
     setIsCreating(false);
     setDialogOpen(true);
@@ -97,6 +194,38 @@ export default function Index() {
   const handleDelete = () => {
     if (selectedEvent) {
       deleteMutation.mutate(selectedEvent.id);
+    }
+  };
+
+  const handleSaveDay1 = (data: Day1FormData) => {
+    if (selectedEvent) {
+      if (selectedEvent.day1?.id) {
+        updateDay1Mutation.mutate({ id: selectedEvent.day1.id, data });
+      } else {
+        createDay1Mutation.mutate({ eventId: selectedEvent.id, data });
+      }
+    }
+  };
+
+  const handleDeleteDay1 = () => {
+    if (selectedEvent?.day1?.id) {
+      deleteDay1Mutation.mutate(selectedEvent.day1.id);
+    }
+  };
+
+  const handleSaveDay2 = (data: Day2FormData) => {
+    if (selectedEvent) {
+      if (selectedEvent.day2?.id) {
+        updateDay2Mutation.mutate({ id: selectedEvent.day2.id, data });
+      } else {
+        createDay2Mutation.mutate({ eventId: selectedEvent.id, data });
+      }
+    }
+  };
+
+  const handleDeleteDay2 = () => {
+    if (selectedEvent?.day2?.id) {
+      deleteDay2Mutation.mutate(selectedEvent.day2.id);
     }
   };
 
@@ -218,7 +347,11 @@ export default function Index() {
         onOpenChange={setDialogOpen}
         event={isCreating ? null : selectedEvent}
         onSave={handleSave}
+        onSaveDay1={handleSaveDay1}
+        onSaveDay2={handleSaveDay2}
         onDelete={handleDelete}
+        onDeleteDay1={handleDeleteDay1}
+        onDeleteDay2={handleDeleteDay2}
         isAdmin={!!user}
       />
     </div>
